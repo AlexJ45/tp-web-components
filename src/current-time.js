@@ -10,36 +10,39 @@ class CurrentTime extends HTMLElement {
     if (attr === "format" && oldVal !== newVal) {
       this.format = newVal;
     }
+    if (this.$time) {
+      this.render();
+    }
   }
   connectedCallback() {
-    if (this.format == "utc") {
-      this.innerHTML = `
-        <p class="current-time__title">Heure UTC</p>
-        <time class="current-time__time">${new Date().toUTCString()}</time>
-        `;
-      this.$time = this.querySelector("time");
-
-      this.intervalId = setInterval(() => {
+    this.render();
+    this.intervalId = setInterval(() => {
+      if (this.format == "utc") {
         this.$time.innerHTML = new Date().toUTCString();
-        console.log("Heure de UTC : " + this.$time.innerHTML);
-      }, 1000);
-    } else {
-      this.innerHTML = `
-      <p class="current-time__title">Heure Locale</p>
-      <time class="current-time__time">${new Date().toLocaleString()}</time>
-      `;
-      this.$time = this.querySelector("time");
-
-      this.intervalId = setInterval(() => {
+      } else {
         this.$time.innerHTML = new Date().toLocaleString();
-        console.log("Heure de actuelle : " + this.$time.innerHTML);
-      }, 1000);
-    }
+      }
+    }, 1000);
   }
 
   disconnectedCallback() {
     console.log("Heure de déconnexion : " + this.$time.innerHTML);
     clearInterval(this.intervalId);
+  }
+  render() {
+    /*this.title = this.format === "utc" ? "Heure UTC : "Heure Locale" */
+    if (this.format == "utc") {
+      this.$date = new Date().toUTCString();
+      this.title = "Heure UTC";
+    } else {
+      this.$date = new Date().toLocaleString();
+      this.title = "Heure Locale";
+    }
+    this.innerHTML = `
+        <p class="current-time__title">${this.title}</p>
+        <time class="current-time__time">${this.$date}</time>
+        `;
+    this.$time = this.querySelector("time");
   }
 }
 
